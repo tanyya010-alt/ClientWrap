@@ -10,6 +10,7 @@ import { addMetricsAction, createWebhookAction, deleteEventAction, importCsvActi
 import { env } from "@/lib/env";
 import { can } from "@/lib/tiers";
 import { formatNumber } from "@/lib/time";
+import { orderedMetrics } from "@/lib/templates";
 
 export default async function ClientData({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string>> }) {
   const { id } = await params;
@@ -25,7 +26,7 @@ export default async function ClientData({ params, searchParams }: { params: Pro
   });
   if (!data) notFound();
   const cfg = data.client.metric_config as Record<string, { label: string; unit: string; hidden?: boolean }>;
-  const metrics = Object.entries(cfg).filter(([, v]) => !v.hidden).map(([key, v]) => ({ key, label: v.label, unit: v.unit }));
+  const metrics = orderedMetrics(cfg).filter(([, v]) => !v.hidden).map(([key, v]) => ({ key, label: v.label, unit: v.unit }));
   const lastMonthEnd = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 0)).toISOString().slice(0, 10);
   const canHook = can(ctx.entitlement, "metrics_webhook");
   return (

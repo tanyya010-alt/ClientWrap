@@ -93,7 +93,7 @@ test("existing user: log in, then Activate applies the key; upgrade, downgrade, 
   await page.goto("/app/clients/new");
   await page.getByLabel("Client / company name").fill("Blocked Co");
   await page.getByRole("button", { name: "Create client" }).click();
-  await expect(page.getByRole("alert")).toContainText("read-only");
+  await expect(page.locator("form [role=alert]")).toContainText("read-only");
 
   // Reactivate the same license: full access again.
   await appsumoWebhook(request, { event: "activate", license_key: down, tier: 2, license_status: "active" });
@@ -117,7 +117,7 @@ test("manual key entry, and refunded users are blocked from redeeming for 24h", 
   await page.goto("/app/billing");
   await page.getByLabel("AppSumo license key").fill(key2);
   await page.getByRole("button", { name: "Apply license" }).click();
-  await expect(page.getByRole("alert")).toContainText("refunded recently");
+  await expect(page.locator("form [role=alert]")).toContainText("refunded recently");
 });
 
 test("admin support dashboard finds a license by key", async ({ page, request }) => {

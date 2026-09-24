@@ -2,6 +2,7 @@ import type { Q, Row } from "./db";
 import { formatNumber, periodBounds, periodLabel, previousPeriod } from "./time";
 import { titleCase } from "./metrics";
 import { generateText } from "./ai";
+import { orderedMetrics } from "./templates";
 
 export interface MetricSnapshot {
   key: string;
@@ -52,7 +53,7 @@ export function classifyTrend(value: number | null, previous: number | null, bet
 export function buildSnapshotFromEvents(
   period: string,
   events: { metric: string; value: number; unit: string; occurred_at: Date | string }[],
-  metricConfig: Record<string, { label?: string; unit?: string; agg?: "sum" | "last" | "avg"; better?: "up" | "down"; hidden?: boolean }>,
+  metricConfig: Record<string, { label?: string; unit?: string; agg?: "sum" | "last" | "avg"; better?: "up" | "down"; hidden?: boolean; position?: number }>,
   historyMonths = 6,
 ): ReportSnapshot {
   const periods: string[] = [period];
@@ -99,7 +100,7 @@ export function buildSnapshotFromEvents(
     });
   }
   // Metrics with data first, then by config order.
-  const order = Object.keys(metricConfig);
+  const order = orderedMetrics(metricConfig).map(([k]) => k);
   metrics.sort((a, b) => {
     const da = a.value === null ? 1 : 0;
     const db = b.value === null ? 1 : 0;

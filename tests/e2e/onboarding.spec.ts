@@ -23,12 +23,10 @@ test("a new user finishes guided onboarding and sends a first wrap well under 15
   await page.getByRole("button", { name: "Continue" }).click();
 
   await page.waitForURL("**/onboarding?step=4");
-  const inputs = page.locator("input[name^='cur__']");
-  const prev = page.locator("input[name^='prev__']");
-  await prev.nth(0).fill("4200");
-  await inputs.nth(0).fill("5100");
-  await prev.nth(2).fill("20");
-  await inputs.nth(2).fill("31");
+  await page.locator("input[name='prev__organic_sessions']").fill("4200");
+  await page.locator("input[name='cur__organic_sessions']").fill("5100");
+  await page.locator("input[name='prev__leads']").fill("20");
+  await page.locator("input[name='cur__leads']").fill("31");
   await page.getByRole("button", { name: "Continue" }).click();
 
   await page.waitForURL("**/onboarding?step=5");

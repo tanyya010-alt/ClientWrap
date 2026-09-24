@@ -10,11 +10,12 @@ async function act(token: string, resub: boolean) {
   const h = await headers();
   await unsubscribe(token, (h.get("x-forwarded-for") ?? "").split(",")[0] || null, resub);
   const { redirect } = await import("next/navigation");
-  redirect(`/u/${encodeURIComponent(token)}?done=${resub ? "resub" : "unsub"}`);
+  redirect(`/u/${token}?done=${resub ? "resub" : "unsub"}`);
 }
 
 export default async function UnsubscribePage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<Record<string, string>> }) {
-  const { token } = await params;
+  const { token: raw } = await params;
+  const token = raw.includes("%") ? decodeURIComponent(raw) : raw;
   const sp = await searchParams;
   const parsed = parseUnsubToken(token);
   const ws = parsed

@@ -17,6 +17,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "retain-on-failure",
+    // Cookie notice already acknowledged, so it never overlaps controls under test.
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: "cw_cookie_notice", value: "1" }] }] },
     launchOptions: chromium ? { executablePath: chromium } : {},
   },
   webServer: {

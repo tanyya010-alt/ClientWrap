@@ -18,7 +18,7 @@ export function CookieNotice() {
   // Client-facing pages set no cookies at all, so no notice is needed there.
   if (!show || CLIENT_FACING.some((p) => path.startsWith(p))) return null;
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-lg sm:flex sm:items-center sm:gap-4">
+    <div className="fixed bottom-3 left-3 z-50 max-w-xs rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-lg">
       <p className="text-slate-700">
         We only use essential cookies to keep you signed in and secure. No tracking or ads.{" "}
         <a href="/legal/cookies" className="text-indigo-600 underline">
@@ -26,7 +26,7 @@ export function CookieNotice() {
         </a>
       </p>
       <button
-        className="mt-3 rounded-lg bg-indigo-600 px-3 py-1.5 font-medium text-white sm:mt-0"
+        className="mt-2 rounded-lg bg-indigo-600 px-3 py-1 font-medium text-white"
         onClick={() => {
           try {
             localStorage.setItem("cw_cookie_notice", "1");

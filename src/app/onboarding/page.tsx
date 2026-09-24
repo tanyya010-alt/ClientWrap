@@ -3,7 +3,7 @@ import { requireApp, inTenant } from "@/lib/auth";
 import { Logo } from "@/components/auth-shell";
 import { Alert, Card, Field, Input, Select, Textarea } from "@/components/ui";
 import { ActionForm, SubmitButton } from "@/components/forms";
-import { SERVICE_TEMPLATES, getTemplate } from "@/lib/templates";
+import { SERVICE_TEMPLATES, getTemplate, orderedMetrics } from "@/lib/templates";
 import { COMMON_TIMEZONES, CURRENCIES } from "@/lib/timezones";
 import { MetricCard } from "@/components/metric-card";
 import { aboutAction, brandAction, firstClientAction, generateFirstAction, loadDemoAction, resultsAction, sendFirstAction, skipOnboardingAction } from "./actions";
@@ -120,7 +120,7 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
             <div className="grid grid-cols-3 gap-2 text-xs font-medium uppercase text-slate-500">
               <span>Metric</span><span>{periodLabel(previousPeriod(last))}</span><span>{periodLabel(last)}</span>
             </div>
-            {Object.entries(data.client.metric_config as Record<string, any>).map(([k, m]) => (
+            {orderedMetrics(data.client.metric_config as Record<string, any>).map(([k, m]) => (
               <div key={k} className="grid grid-cols-3 items-center gap-2">
                 <span className="text-sm">{m.label} <span className="text-xs text-slate-400">{m.unit}</span></span>
                 <Input name={`prev__${k}`} inputMode="decimal" aria-label={`${m.label} ${previousPeriod(last)}`} />

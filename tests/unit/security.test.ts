@@ -60,3 +60,16 @@ describe("no secrets in client-side code", () => {
     for (const f of files) expect(readFileSync(f, "utf8")).not.toMatch(/sk_live_[A-Za-z0-9]{10,}|re_[A-Za-z0-9]{20,}|sk-ant-[A-Za-z0-9]/);
   });
 });
+
+describe("unsubscribe links", () => {
+  it("are URL-safe and round-trip, even if a mail client re-encodes them", async () => {
+    const { unsubscribeUrl } = await import("@/lib/messaging");
+    const { parseUnsubToken } = await import("@/lib/unsubscribe");
+    const id = "11111111-2222-3333-4444-555555555555";
+    const token = unsubscribeUrl(id, "email").split("/u/")[1];
+    expect(encodeURIComponent(token)).toBe(token);
+    expect(parseUnsubToken(token)).toEqual({ clientId: id, channel: "email" });
+    expect(parseUnsubToken(encodeURIComponent(token).replace(".", "%2E"))).toEqual({ clientId: id, channel: "email" });
+    expect(parseUnsubToken(token.slice(0, -2) + "xx")).toBeNull();
+  });
+});

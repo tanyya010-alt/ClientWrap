@@ -28,8 +28,8 @@ test("invoice → reminders → unsubscribe; metrics webhook; portal", async ({ 
   await page.getByRole("button", { name: "Create webhook" }).click();
   const url = (await page.locator("code").first().textContent())!;
   await page.getByRole("button", { name: "Reveal" }).click();
+  await expect(page.locator("code").nth(1)).toHaveText(/^cwsec_/);
   const secret = (await page.locator("code").nth(1).textContent())!;
-  expect(secret).toMatch(/^cwsec_/);
   const body = JSON.stringify({ metric: "Leads", value: 42, unit: "leads", idempotency_key: "e2e-1" });
   const ts = String(Math.floor(Date.now() / 1000));
   const sig = "sha256=" + createHmac("sha256", secret).update(`${ts}.${body}`).digest("hex");
@@ -77,7 +77,7 @@ test("invoice → reminders → unsubscribe; metrics webhook; portal", async ({ 
   await page.goto(`/app/invoices/${invoiceId}`);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Mark as paid" }).click();
-  await expect(page.getByText("Marked as paid")).toBeVisible();
+  await expect(page.getByText(/via manual/)).toBeVisible();
   const status = await sql("select status from invoices where id = $1", [invoiceId]);
   expect(status[0].status).toBe("paid");
 });

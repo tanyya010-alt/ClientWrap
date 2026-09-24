@@ -124,7 +124,8 @@ export async function insertEvents(
     let changed = false;
     for (const [k, e] of newMetrics) {
       if (!cfg[k]) {
-        cfg[k] = { label: e.label.length > 1 && e.label !== k ? e.label : titleCase(k), unit: e.unit, agg: "sum", better: "up" };
+        const position = Object.keys(cfg).length;
+        cfg[k] = { label: e.label.length > 1 && e.label !== k ? e.label : titleCase(k), unit: e.unit, agg: "sum", better: "up", position };
         changed = true;
       }
     }

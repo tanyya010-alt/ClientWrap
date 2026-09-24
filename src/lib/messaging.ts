@@ -10,12 +10,12 @@ export type Channel = "email" | "sms" | "whatsapp";
 export type MessageKind = "reminder" | "report" | "invoice" | "referral" | "case_study_approval" | "receipt" | "test";
 
 export function unsubscribeUrl(clientId: string, channel: Channel): string {
-  return `${env.APP_URL}/u/${signedToken(`${clientId}:${channel}`, "unsub")}`;
+  return `${env.APP_URL}/u/${signedToken(`${clientId}.${channel}`, "unsub")}`;
 }
 
 /** RFC 8058 one-click endpoint used in the List-Unsubscribe header. */
 export function oneClickUnsubscribeUrl(clientId: string, channel: Channel): string {
-  return `${env.APP_URL}/api/unsubscribe/${signedToken(`${clientId}:${channel}`, "unsub")}`;
+  return `${env.APP_URL}/api/unsubscribe/${signedToken(`${clientId}.${channel}`, "unsub")}`;
 }
 
 /** Latest consent state per channel for a client. */

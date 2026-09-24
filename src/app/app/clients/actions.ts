@@ -95,13 +95,14 @@ export async function saveMetricConfigAction(clientId: string, _: ActionState, f
         agg: ["sum", "avg", "last"].includes(String(fd.getAll("agg")[i])) ? String(fd.getAll("agg")[i]) : "sum",
         better: String(fd.getAll("better")[i]) === "down" ? "down" : "up",
         hidden: fd.getAll("hidden").map(String).includes(k),
+        position: i,
       };
     });
     const newLabel = str(fd, "new_label");
     if (newLabel) {
       const k = metricKey(newLabel);
       if (!k) throw new UserError("Metric name needs letters or numbers.");
-      cfg[k] = { label: newLabel, unit: str(fd, "new_unit").slice(0, 24), agg: str(fd, "new_agg") || "sum", better: str(fd, "new_better") === "down" ? "down" : "up" };
+      cfg[k] = { label: newLabel, unit: str(fd, "new_unit").slice(0, 24), agg: str(fd, "new_agg") || "sum", better: str(fd, "new_better") === "down" ? "down" : "up", position: keys.length };
     }
     await q.exec("update clients set metric_config = $2 where id = $1", [clientId, JSON.stringify(cfg)]);
     return { ok: true, message: "Metrics saved." };

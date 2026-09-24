@@ -3,9 +3,10 @@ import { verifySignedToken } from "./crypto";
 import { audit } from "./audit";
 
 export function parseUnsubToken(token: string): { clientId: string; channel: "email" | "sms" | "whatsapp" } | null {
-  const v = verifySignedToken(decodeURIComponent(token), "unsub");
+  // Tokens are URL-safe (base64url + "."), so no decoding is needed; tolerate an encoded copy anyway.
+  const v = verifySignedToken(token.includes("%") ? decodeURIComponent(token) : token, "unsub");
   if (!v) return null;
-  const [clientId, channel] = v.split(":");
+  const [clientId, channel] = v.split(".");
   if (!/^[0-9a-f-]{36}$/.test(clientId) || !["email", "sms", "whatsapp"].includes(channel)) return null;
   return { clientId, channel: channel as "email" | "sms" | "whatsapp" };
 }

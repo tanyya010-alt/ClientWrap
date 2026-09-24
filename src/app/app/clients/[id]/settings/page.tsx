@@ -8,6 +8,7 @@ import { COMMON_TIMEZONES } from "@/lib/timezones";
 import { consentState } from "@/lib/messaging";
 import { can } from "@/lib/tiers";
 import { toIsoDate } from "@/lib/time";
+import { orderedMetrics } from "@/lib/templates";
 
 export default async function ClientSettings({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -68,7 +69,7 @@ export default async function ClientSettings({ params }: { params: Promise<{ id:
                 <table className="w-full text-sm">
                   <thead className="text-left text-xs text-slate-500"><tr><th>Label</th><th>Unit</th><th>Monthly value</th><th>Better when</th><th>Hide</th></tr></thead>
                   <tbody>
-                    {Object.entries(cfg).map(([k, v]) => (
+                    {orderedMetrics(cfg).map(([k, v]) => (
                       <tr key={k}>
                         <td className="py-1 pr-1"><input type="hidden" name="key" value={k} /><input name="label" defaultValue={v.label} aria-label="Label" className="w-full rounded border border-slate-300 px-2 py-1" /></td>
                         <td className="pr-1"><input name="unit" defaultValue={v.unit} aria-label="Unit" className="w-20 rounded border border-slate-300 px-2 py-1" /></td>
