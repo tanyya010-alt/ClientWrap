@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+.prose-cw h1 { @apply text-3xl font-bold mb-4 mt-2; }
+.prose-cw h2 { @apply text-xl font-semibold mt-8 mb-3; }
+.prose-cw h3 { @apply text-lg font-semibold mt-6 mb-2; }
+.prose-cw p { @apply my-3 leading-relaxed text-slate-700; }
+.prose-cw ul { @apply list-disc pl-6 my-3 space-y-1 text-slate-700; }
+.prose-cw ol { @apply list-decimal pl-6 my-3 space-y-1 text-slate-700; }
+.prose-cw a { @apply text-brand-600 underline; }
+.prose-cw code { @apply bg-slate-100 rounded px-1 py-0.5 text-sm; }
+.prose-cw pre { @apply bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm my-4; }
+.prose-cw pre code { @apply bg-transparent p-0 text-slate-100; }
+.prose-cw table { @apply w-full text-sm my-4 border-collapse; }
+.prose-cw th, .prose-cw td { @apply border border-slate-200 px-3 py-2 text-left; }
+.prose-cw blockquote { @apply border-l-4 border-slate-200 pl-4 italic text-slate-600; }

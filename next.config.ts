@@ -11,7 +11,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["pg"],
-  experimental: { serverActions: { bodySizeLimit: "2mb" } },
+  outputFileTracingIncludes: { "/**": ["./content/**/*"] },
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
