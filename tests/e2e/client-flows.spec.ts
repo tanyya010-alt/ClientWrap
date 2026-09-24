@@ -54,6 +54,8 @@ test("invoice → reminders → unsubscribe; metrics webhook; portal", async ({ 
   // Reminder due: make the invoice 1 day overdue and run the scheduler on a weekday afternoon.
   await sql("update invoices set due_date = current_date - 1 where id = $1", [invoiceId]);
   await sql("update workspaces set quiet_hours_start = 0, quiet_hours_end = 0, skip_weekends = false");
+  // The scan is deduplicated per 15-minute window; clear it so a retry in the same window still scans.
+  await sql("delete from jobs where type = 'reminders.scan'");
   const cron = await request.get("/api/cron", { headers: { authorization: "Bearer e2e-cron" } });
   expect(cron.status()).toBe(200);
   const reminder = await latestEmail(clientEmail, "Friendly reminder");
@@ -69,7 +71,7 @@ test("invoice → reminders → unsubscribe; metrics webhook; portal", async ({ 
   const unsub = String(reminder.text_body).match(/Unsubscribe: (http\S+)/)![1];
   await cp.goto(unsub.replace("http://localhost:3100", ""));
   await cp.getByRole("button", { name: "Unsubscribe" }).click();
-  await expect(cp.getByText("You're unsubscribed")).toBeVisible();
+  await expect(cp.getByRole("heading", { name: "You're unsubscribed" })).toBeVisible();
   await client.close();
   const consent = await sql("select action from consent_records order by created_at desc limit 1");
   expect(consent[0].action).toBe("unsubscribed");
