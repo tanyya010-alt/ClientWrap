@@ -10,7 +10,12 @@ export type Channel = "email" | "sms" | "whatsapp";
 export type MessageKind = "reminder" | "report" | "invoice" | "referral" | "case_study_approval" | "receipt" | "test";
 
 export function unsubscribeUrl(clientId: string, channel: Channel): string {
-  return `${env.APP_URL}/u/${signedToken(`${clientId}:${channel}`, "unsub")}`;
+  return `${env.APP_URL}/u/${signedToken(`${clientId}.${channel}`, "unsub")}`;
+}
+
+/** RFC 8058 one-click endpoint used in the List-Unsubscribe header. */
+export function oneClickUnsubscribeUrl(clientId: string, channel: Channel): string {
+  return `${env.APP_URL}/api/unsubscribe/${signedToken(`${clientId}.${channel}`, "unsub")}`;
 }
 
 /** Latest consent state per channel for a client. */
@@ -91,6 +96,7 @@ export async function sendToClient(q: Q, i: SendToClientInput): Promise<SendOutc
     return { status: "skipped", reason };
   };
   if (!recipient) return skip(i.channel === "email" ? "Client has no contact email" : "Client has no phone number");
+  if (i.client.is_demo && !i.to) return skip("Demo client: messages are never sent to demo clients (use “send a test to me”)");
 
   if (i.kind !== "receipt" && !i.to) {
     const consent = await consentState(q, i.client.id);
@@ -179,7 +185,10 @@ export async function sendToClient(q: Q, i: SendToClientInput): Promise<SendOutc
     text,
     from: sender.from,
     replyTo: sender.replyTo,
-    headers: i.kind === "receipt" ? undefined : { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+    headers:
+      i.kind === "receipt"
+        ? undefined
+        : { "List-Unsubscribe": `<${oneClickUnsubscribeUrl(i.client.id, "email")}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     attachments: i.attachments,
     workspaceId: i.workspace.id,
   });

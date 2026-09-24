@@ -33,7 +33,7 @@ export async function exportWorkspaceData(q: Q, workspaceId: string) {
   for (const t of EXPORT_TABLES) {
     data[t] = await q.many(`select * from ${t} where workspace_id = $1 order by 1`, [workspaceId]);
   }
-  return { exported_at: new Date().toISOString(), format_version: 1, account: user, workspace: ws, licenses, ...data };
+  return { exported_at: new Date().toISOString(), format_version: 1, account: user, workspace: ws, licenses, ...data } as Record<string, any>;
 }
 
 function csvCell(v: unknown): string {

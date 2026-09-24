@@ -196,3 +196,9 @@ export function validatePassword(pw: string): string | null {
   if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return "Use at least one letter and one number.";
   return null;
 }
+
+import { withTenant } from "./db";
+/** Shorthand for running queries in the current user's tenant context (RLS enforced). */
+export function inTenant<T>(ctx: AppContext, fn: (q: Q) => Promise<T>): Promise<T> {
+  return withTenant({ userId: ctx.user.id, workspaceId: ctx.workspace.id }, fn);
+}

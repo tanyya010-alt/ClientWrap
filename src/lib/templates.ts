@@ -93,6 +93,16 @@ export function getTemplate(key: string | null | undefined): ServiceTemplate {
   return SERVICE_TEMPLATES.find((t) => t.key === key) ?? SERVICE_TEMPLATES[SERVICE_TEMPLATES.length - 1];
 }
 
-export function metricConfigFromTemplate(t: ServiceTemplate): Record<string, Omit<MetricPreset, "key">> {
-  return Object.fromEntries(t.metrics.map(({ key, ...rest }) => [key, rest]));
+export function metricConfigFromTemplate(t: ServiceTemplate): Record<string, Omit<MetricPreset, "key"> & { position: number }> {
+  return Object.fromEntries(t.metrics.map(({ key, ...rest }, i) => [key, { ...rest, position: i }]));
+}
+
+/**
+ * Metric config lives in JSONB, which does not preserve key order, so each metric carries a
+ * `position`. Always iterate metrics through this helper.
+ */
+export function orderedMetrics<T extends { position?: number; label?: string }>(cfg: Record<string, T> | null | undefined): [string, T][] {
+  return Object.entries(cfg ?? {}).sort(
+    ([ka, a], [kb, b]) => (a.position ?? 999) - (b.position ?? 999) || String(a.label ?? ka).localeCompare(String(b.label ?? kb)),
+  );
 }

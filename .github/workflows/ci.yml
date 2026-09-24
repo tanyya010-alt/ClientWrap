@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Create app role and databases
+        run: |
+          psql -h localhost -U postgres -c "create role clientwrap login password 'clientwrap' createrole createdb"
+          for db in clientwrap_test clientwrap_e2e; do psql -h localhost -U postgres -c "create database $db owner clientwrap"; done
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Migrations apply cleanly (fresh + idempotent re-run)
+        env: { DATABASE_URL: "postgres://clientwrap:clientwrap@localhost:5432/clientwrap_e2e" }
+        run: npx tsx scripts/migrate.ts --reset && npx tsx scripts/migrate.ts
+      - name: Unit & integration tests (incl. cross-tenant RLS, every webhook)
+        run: npm test
+      - name: Build
+        env:
+          APP_URL: http://localhost:3100
+          DATABASE_URL: postgres://clientwrap:clientwrap@localhost:5432/clientwrap_e2e
+        run: npm run build
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests (onboarding, AppSumo redemption, client flows)
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: playwright-report, path: playwright-report, retention-days: 7 }
+
+  migrate:
+    # Applies migrations to staging on main, and to production on release tags.
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Migrate staging
+        env: { DATABASE_URL: "${{ secrets.STAGING_DATABASE_URL }}", DATABASE_SSL: "true" }
+        run: '[ -z "$DATABASE_URL" ] && echo "STAGING_DATABASE_URL not set; skipping" || npm run db:migrate'
