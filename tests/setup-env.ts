@@ -1,0 +1,11 @@
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL ?? "postgres://clientwrap:clientwrap@localhost:5432/clientwrap_test";
+process.env.APP_URL = "http://localhost:3999";
+process.env.APP_SECRET = "test-secret-test-secret-test-secret-test-secret";
+process.env.ENCRYPTION_KEY = Buffer.alloc(32, 7).toString("base64");
+process.env.APPSUMO_API_KEY = "test-appsumo-api-key";
+process.env.APPSUMO_CLIENT_ID = "test-client";
+process.env.APPSUMO_CLIENT_SECRET = "test-client-secret";
+process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_billing";
+process.env.CRON_SECRET = "test-cron";
+process.env.FEATURE_SMS_WHATSAPP = "true";
+delete process.env.RESEND_API_KEY;
